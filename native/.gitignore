@@ -1,0 +1,6 @@
+#DEPENDENCES 
+/node_modules
+
+#CONFIGS
+/.vscode
+.env
