@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "bruno",
+    "password": "Tascom21608",
+    "database": "networking-base",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "bruno",
+    "password": "Tascom21608",
+    "database": "networking-base",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "bruno",
+    "password": "Tascom21608",
+    "database": "networking-base",
+    "host": "localhost",
+    "dialect": "postgres"
+  }
+}
