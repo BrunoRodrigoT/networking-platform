@@ -10,11 +10,18 @@ router.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
   try {
     const hashedPassword = await argon2.hash(password);
+
+    const emailExists = await User.findOne({ where: { email } });
+
+    if (emailExists)
+      return res.status(400).json({ error: "Email already exists" });
+
     const user = await User.create({
-      username,
-      email,
+      username: username,
+      email: email,
       password: hashedPassword,
     });
+
     res.status(201).json(user);
   } catch (error) {
     res.status(400).json({ error: "Registration failed" });
