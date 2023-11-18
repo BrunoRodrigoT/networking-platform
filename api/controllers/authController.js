@@ -1,30 +1,65 @@
 const express = require("express");
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const { User, Company, Course } = require("../models");
+const validator = require("validator");
+const moment = require("moment");
 
 const router = express.Router();
 
 // Registro
 router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
   try {
-    const hashedPassword = await argon2.hash(password);
+    if (!validator.isEmail(req.body.email)) {
+      return res.status(400).json({ error: "Email inválido" });
+    }
 
-    const emailExists = await User.findOne({ where: { email } });
+    const hashedPassword = await argon2.hash(req.body.password);
 
-    if (emailExists)
-      return res.status(400).json({ error: "Email already exists" });
+    const emailExists = await User.findOne({
+      where: { email: req.body.email },
+    });
+
+    if (emailExists) {
+      return res.status(400).json({ error: "Email já cadastrado" });
+    }
+
+    const isValidDate = moment(
+      req.body.birth_date,
+      moment.ISO_8601,
+      true
+    ).isValid();
+    if (!isValidDate) {
+      return res.status(400).json({ error: "Data de nascimento inválida" });
+    }
+
+    const company = await Company.findByPk(req.body.company_id);
+
+    if (!company) {
+      return res.status(400).json({ error: "Campus não encontrado" });
+    }
+
+    const course = await Course.findByPk(req.body.course_id);
+
+    if (!course) {
+      return res.status(400).json({ error: "Campus não encontrado" });
+    }
 
     const user = await User.create({
-      username: username,
-      email: email,
+      ...req.body,
       password: hashedPassword,
     });
 
-    res.status(201).json(user);
+    const userWithCompany = {
+      ...user.toJSON(),
+      company: company.toJSON(),
+      course: course.toJSON(),
+    };
+
+    res.status(201).json(userWithCompany);
   } catch (error) {
-    res.status(400).json({ error: "Registration failed" });
+    console.error(error); // Log do erro para depuração
+    res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
 
@@ -44,7 +79,7 @@ router.post("/login", async (req, res) => {
   const token = jwt.sign({ userId: user.id }, "your-secret-key", {
     expiresIn: "1h",
   });
-  res.json({ token });
+  res.json({ user, token });
 });
 
 // Rota protegida
