@@ -10,7 +10,7 @@ const styles = (checked: boolean, disabled?: boolean) => {
       alignSelf: "flex-start",
     },
     radio: {
-      borderColor: theme.colors.primary?.main,
+      borderColor: theme.colors.primary?.light,
       borderWidth: 1,
       width: 25,
       height: 25,
@@ -27,7 +27,7 @@ const styles = (checked: boolean, disabled?: boolean) => {
     },
     radioText: {
       fontFamily: theme.typography.fonts?.primary.normal,
-      color: theme.colors.text?.dark,
+      color: theme.colors.text?.main,
       fontSize: theme.typography.size.body,
     },
     radioDisabled: {

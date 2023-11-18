@@ -1,20 +1,21 @@
 const theme = {
   colors: {
     primary: {
-      main: "#363636",
-      dark: "#F9F9F9",
+      main: "#638FA0",
+      dark: "#03212D",
+      light: "#BDD2FF",
     },
     secondary: {
-      main: "#BDD2FF",
+      main: "#F5A158",
     },
     background: {
       main: "#F9F9F9",
       dark: "#000000",
     },
     text: {
-      main: "#212121",
-      light: "#9B9B9B",
-      dark: "#ECECEC",
+      main: "#638FA0",
+      light: "#D9D9D9",
+      dark: "#8C9497",
     },
     common: { white: "#ffffff", black: "#000000" },
     success: {
@@ -71,7 +72,7 @@ const theme = {
     },
   },
   shape: {
-    borderRadius: 10,
+    borderRadius: 30,
     opacity: 0.7,
     padding: 18,
   },

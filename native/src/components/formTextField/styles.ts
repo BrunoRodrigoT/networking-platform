@@ -11,7 +11,7 @@ export const styles = () => {
       borderWidth: 1,
       marginTop: 10,
       borderRadius: theme.shape.borderRadius,
-      borderColor: theme.colors.secondary?.main,
+      borderColor: theme.colors.primary.light,
       backgroundColor: theme.colors.common?.white,
       flexDirection: "row",
       alignItems: "center",
@@ -26,7 +26,7 @@ export const styles = () => {
       fontFamily: theme.typography.fonts?.primary.normal,
     },
     label: {
-      color: theme.colors.text?.dark,
+      color: theme.colors.text?.main,
       fontSize: theme.typography.size?.regular,
       fontFamily: theme.typography.fonts?.primary.normal,
     },
