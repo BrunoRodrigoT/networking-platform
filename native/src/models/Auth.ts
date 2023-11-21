@@ -11,7 +11,7 @@ interface IUser {
   username: string;
   email: string;
   password: string;
-  birth_date: Date;
+  birth_date: string;
   gender: string;
   phone: string;
   period: string;
@@ -24,8 +24,38 @@ interface IUser {
   course?: ICourse;
 }
 
-interface IUserSignUp extends IUser, Omit<IUser, "id" | "course" | "company"> {
+interface IUserSigned {
+  user: Omit<IUser, "company" | "course" | "password">;
+  token: string;
+}
+
+interface IUserSignUp extends Omit<IUser, "id" | "course" | "company"> {
   password_confirm: string;
 }
 
-export { IUser, IUserSignUp, IUserSignIn };
+interface IAuthReducerState {
+  loading: boolean;
+  data: IUserSigned;
+  error: string;
+}
+
+interface IAuthReducerAction {
+  type: AuthReducerEnum;
+  payload?: boolean | IUserSigned | string;
+}
+
+enum AuthReducerEnum {
+  LOADING,
+  SUCCESS,
+  ERROR,
+}
+
+export {
+  IUser,
+  IUserSignUp,
+  IUserSignIn,
+  IUserSigned,
+  IAuthReducerState,
+  IAuthReducerAction,
+  AuthReducerEnum,
+};

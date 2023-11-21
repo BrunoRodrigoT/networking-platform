@@ -23,7 +23,7 @@ export default function GoBack({ title, subtitle }: IGoBackProps) {
       <TouchableOpacity onPress={goBack}>
         <Ionicons
           name="arrow-back"
-          color={theme.colors.common.white}
+          color={theme.colors.primary.main}
           size={theme.typography.size.title}
         />
       </TouchableOpacity>
@@ -35,17 +35,7 @@ export default function GoBack({ title, subtitle }: IGoBackProps) {
             color: theme.colors.primary.dark,
           }}
         >
-          {title ? (
-            title
-          ) : (
-            <>
-              <Ionicons
-                name="time-outline"
-                size={theme.typography.size.title}
-              />
-              vertime
-            </>
-          )}
+          {title ? title : <></>}
         </Text>
 
         <Text
