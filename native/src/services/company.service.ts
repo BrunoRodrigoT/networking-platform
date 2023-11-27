@@ -1,5 +1,5 @@
+import { Instance } from "@config";
 import { ICompany } from "@models/Company";
-import Instance from "src/config/api";
 const DEFAULT_PATH = "/company";
 
 export default function useCompany() {

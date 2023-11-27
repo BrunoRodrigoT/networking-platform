@@ -7,9 +7,10 @@ import { Text, TouchableOpacity, View } from "react-native";
 interface IGoBackProps {
   title?: string;
   subtitle?: string;
+  goBacksTo?: () => void;
 }
 
-export default function GoBack({ title, subtitle }: IGoBackProps) {
+export default function GoBack({ title, subtitle, goBacksTo }: IGoBackProps) {
   const theme = useTheme();
   const { goBack } = useNavigation();
   return (
@@ -20,7 +21,7 @@ export default function GoBack({ title, subtitle }: IGoBackProps) {
         gap: 20,
       }}
     >
-      <TouchableOpacity onPress={goBack}>
+      <TouchableOpacity onPress={goBacksTo ? goBacksTo : goBack}>
         <Ionicons
           name="arrow-back"
           color={theme.colors.primary.main}

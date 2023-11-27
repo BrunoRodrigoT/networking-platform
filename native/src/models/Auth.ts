@@ -22,6 +22,8 @@ interface IUser {
   course_id: string;
   company?: ICompany;
   course?: ICourse;
+  accept_term: boolean;
+  accept_promotions: boolean;
 }
 
 interface IUserSigned {
@@ -29,7 +31,11 @@ interface IUserSigned {
   token: string;
 }
 
-interface IUserSignUp extends Omit<IUser, "id" | "course" | "company"> {
+interface IUserSignUp
+  extends Omit<
+    IUser,
+    "id" | "course" | "company" | "created_at" | "updated_at"
+  > {
   password_confirm: string;
 }
 
@@ -44,7 +50,7 @@ interface IAuthReducerAction {
   payload?: boolean | IUserSigned | string;
 }
 
-enum AuthReducerEnum {
+export enum AuthReducerEnum {
   LOADING,
   SUCCESS,
   ERROR,
@@ -57,5 +63,4 @@ export {
   IUserSigned,
   IAuthReducerState,
   IAuthReducerAction,
-  AuthReducerEnum,
 };

@@ -18,6 +18,8 @@ const User = database.define("users", {
   phone: Sequelize.STRING,
   period: Sequelize.INTEGER,
   specialties: Sequelize.STRING,
+  accept_term: Sequelize.BOOLEAN,
+  accept_promotions: Sequelize.BOOLEAN,
 });
 
 User.belongsTo(Company, { foreignKey: "company_id" });

@@ -20,6 +20,10 @@ const Instance = axios.create({
     }
     return cleanedParams as any;
   },
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
 });
 Instance.interceptors.request.use(
   (req) => {

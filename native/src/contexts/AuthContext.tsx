@@ -9,10 +9,11 @@ import {
   IUserSigned,
 } from "@models/Auth";
 import * as SecureStore from "expo-secure-store";
-import UseAuth from "src/services/auth.service";
 import { IError } from "@models/Request";
 import { useMutation } from "react-query";
 import { useNavigation } from "@react-navigation/native";
+import { UseAuth } from "@services";
+import { Instance } from "@config";
 
 const initialAuthState: IAuthReducerState = {
   loading: false,
@@ -28,6 +29,8 @@ const initialAuthState: IAuthReducerState = {
       specialties: "",
       company_id: "",
       course_id: "",
+      accept_promotions: false,
+      accept_term: false,
       created_at: new Date(),
       updated_at: new Date(),
     },
@@ -104,6 +107,8 @@ const AuthProvider = ({ children }: IContextProviderProps) => {
         });
       },
       onError: (error: IError) => {
+        console.log(error);
+
         dispatch({
           type: AuthReducerEnum.ERROR,
           payload: error.message,
@@ -112,6 +117,8 @@ const AuthProvider = ({ children }: IContextProviderProps) => {
     });
   };
 
+  // console.log(state);
+
   const SignUp = (data: IUserSignUp) => {
     dispatch({
       type: AuthReducerEnum.LOADING,
@@ -119,7 +126,10 @@ const AuthProvider = ({ children }: IContextProviderProps) => {
     });
     SignUpMutation.mutate(data, {
       onSuccess: () => {
-        navigate("SIGN_IN" as never);
+        SignIn({
+          email: data.email,
+          password: data.password,
+        });
       },
       onError: (error: IError) => {
         dispatch({
@@ -151,6 +161,8 @@ const AuthProvider = ({ children }: IContextProviderProps) => {
           type: AuthReducerEnum.SUCCESS,
           payload: JSON.parse(data),
         });
+        Instance.defaults.headers.common["authorization"] =
+          "Bearer " + JSON.parse(data).token;
       }
     });
   }, []);

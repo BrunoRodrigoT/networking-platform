@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api";
+const API_URL = "http://192.168.1.6:3000/api";
 const character = API_URL[API_URL.length - 5];
 const base =
   character == "0"

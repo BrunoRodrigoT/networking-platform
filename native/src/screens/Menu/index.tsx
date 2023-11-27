@@ -1,5 +1,5 @@
-import { Card, CardBase, Container } from "@components";
-import { useTheme } from "@contexts";
+import { Button, Card, CardBase, Container } from "@components";
+import { AuthContext, useTheme } from "@contexts";
 import { Ionicons } from "@expo/vector-icons";
 import { IRootStackParamList } from "@models/Screens";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -16,7 +16,7 @@ export default function Menu({ navigation }: Props) {
   const theme = useTheme();
   const style = styles();
 
-  const [eye, setEye] = React.useState<boolean>(false);
+  const { SignOut } = React.useContext(AuthContext);
 
   const cards = [
     {
@@ -38,62 +38,6 @@ export default function Menu({ navigation }: Props) {
 
   return (
     <Container styles={{ gap: 30, padding: theme.shape.padding }}>
-      <View
-        style={{
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexDirection: "row",
-          marginTop: 30,
-        }}
-      >
-        <View>
-          <Text style={style.title}>
-            <Ionicons name="time-outline" size={theme.typography.size.title} />
-            ver
-            <Text
-              style={{
-                fontFamily: theme.typography.fonts.title.normal,
-              }}
-            >
-              time
-            </Text>
-          </Text>
-          <Text style={style.subtitle}>Calculadora de horas extras</Text>
-        </View>
-        <Ionicons
-          name="notifications-outline"
-          size={theme.typography.size.title}
-          color={theme.colors.common.white}
-        />
-      </View>
-
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "flex-end",
-          gap: 20,
-          alignItems: "center",
-        }}
-      >
-        {eye ? (
-          <>
-            <Text style={style.values}>
-              {formatWithMask({ text: "00.00", mask: RegexOf.price }).masked}
-            </Text>
-            <TouchableOpacity onPress={() => setEye(!eye)}>
-              <Ionicons name="eye" style={style.values} />
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <Text style={style.values}>R$: -- --</Text>
-            <TouchableOpacity onPress={() => setEye(!eye)}>
-              <Ionicons name="eye-off" style={style.values} />
-            </TouchableOpacity>
-          </>
-        )}
-      </View>
-
       <View style={{ gap: 10, flex: 1 }}>
         {cards.map((e, index) => {
           return (
@@ -121,6 +65,14 @@ export default function Menu({ navigation }: Props) {
             </CardBase>
           );
         })}
+        <Button
+          variant="primary"
+          onPress={() => {
+            SignOut();
+          }}
+        >
+          logout
+        </Button>
       </View>
     </Container>
   );

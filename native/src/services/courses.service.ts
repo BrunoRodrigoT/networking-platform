@@ -1,5 +1,5 @@
+import { Instance } from "@config";
 import { ICourse } from "@models/Course";
-import Instance from "src/config/api";
 const DEFAULT_PATH = "/course";
 
 export default function useCourses() {
@@ -7,5 +7,5 @@ export default function useCourses() {
     return Instance.get(DEFAULT_PATH).then((res) => res.data);
   };
 
-  return {};
+  return { findCourses };
 }

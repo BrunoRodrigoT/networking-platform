@@ -1,209 +1,113 @@
 import React from "react";
+import { Alert, Container, GoBack } from "@components";
+
+import { AuthReducerEnum, IUserSignUp } from "@models/Auth";
+
+import { AuthContext, useTheme } from "@contexts";
+import { IRootStackParamList } from "@models/Screens";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import StepOne from "./stepOne";
+import StepTwo from "./stepTwo";
+import StepThree from "./stepThree";
+import cleanObject from "@utils/cleanObject";
 import {
-  Container,
-  FormTextField,
-  StrengthPasswordMeter,
-  AutoComplete,
-  GoBack,
-} from "@components";
-import { RegexOf, Yup } from "@config";
-import { IUserSignUp } from "@models/Auth";
-import { Messages } from "@utils/messages";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
-import EyeOpen from "@assets/icons/svgs/icons/eye.svg";
-import EyeClose from "@assets/icons/svgs/icons/eye_closed.svg";
+type Props = NativeStackScreenProps<IRootStackParamList, "SIGN_UP">;
 
-import { useTheme } from "@contexts";
-
-export default function SignUp() {
+export default function SignUp({ navigation }: Props) {
   const theme = useTheme();
+  const { SignUp, state, dispatch } = React.useContext(AuthContext);
   const [step, setStep] = React.useState<number>(1);
 
-  const [password, setPassword] = React.useState<boolean>(false);
-  const [invisiblePass, setInvisiblePass] = React.useState<boolean>(true);
-  const [invisiblePassConfirmation, setInvisiblePassConfirmation] =
-    React.useState<boolean>(true);
-
-  const validations = Yup.object().shape({
-    username: Yup.string().required(Messages.required),
-    email: Yup.string().required(Messages.required),
-    password: Yup.string()
-      .required(Messages.required)
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{6,})/,
-        Messages.password_validation
-      ),
-    password_confirm: Yup.string()
-      .required(Messages.required)
-      .equals([Yup.ref("password")], "As senhas precisam ser iguais"),
-    birth_date: Yup.string().required(Messages.required),
-    gender: Yup.string().required(Messages.required),
-    phone: Yup.string().required(Messages.required),
-    period: Yup.string().required(Messages.required),
-    specialties: Yup.string().required(Messages.required),
-    company_id: Yup.string().required(Messages.required),
-    course_id: Yup.string().required(Messages.required),
+  const [initialValues, setInitialValues] = React.useState<IUserSignUp>({
+    username: "",
+    email: "",
+    password: "",
+    password_confirm: "",
+    birth_date: "",
+    gender: "",
+    phone: "",
+    company_id: "",
+    course_id: "",
+    period: "",
+    specialties: "",
+    accept_promotions: false,
+    accept_term: false,
   });
 
-  const { control, handleSubmit, watch } = useForm<IUserSignUp>({
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-      password_confirm: "",
-      birth_date: "",
-      gender: "",
-      phone: "",
-      period: "",
-      specialties: "",
-      company_id: "",
-      course_id: "",
-    },
-    resolver: yupResolver(validations) as never,
-  });
-  const handleNextStep = () => {
-    setStep((step) => step + 1);
+  const handlePreviousStep = () => {
+    if (step > 1) {
+      setStep((step) => step - 1);
+    } else {
+      navigation.goBack();
+    }
   };
 
   const onSubmit = (data: IUserSignUp) => {
-    console.log(data);
+    const dataCleaned = cleanObject(data);
+
+    if (step === 1) {
+      const date = dataCleaned.birth_date?.split("/");
+      dataCleaned.birth_date = `${date[2]}-${date[1]}-${date[0]}`;
+      setInitialValues({ ...dataCleaned });
+      setStep((step) => step + 1);
+    } else if (step === 2) {
+      setInitialValues({ ...dataCleaned });
+      setStep((step) => step + 1);
+    } else {
+      SignUp({
+        ...initialValues,
+        ...dataCleaned,
+      });
+    }
   };
 
   return (
-    <Container styles={{ padding: theme.shape.padding }}>
-      <GoBack />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <Alert
+        open={state.error ? true : false}
+        message={state.error}
+        severity="error"
+        onClose={() => {
+          dispatch({ type: AuthReducerEnum.ERROR, payload: "" });
+        }}
+      />
 
       {step === 1 ? (
-        <ScrollView>
-          <FormTextField
-            required
-            name="username"
-            label={"Nome e Sobrenome"}
-            control={control}
-          />
-
-          <FormTextField
-            required
-            name="email"
-            label="E-mail"
-            control={control}
-            keyboardType="email-address"
-          />
-
-          <FormTextField
-            required
-            name="password"
-            label={"Senha"}
-            control={control}
-            onFocus={() => setPassword(true)}
-            onBlur={() => setPassword(false)}
-            secureTextEntry={invisiblePass}
-            customStyles={{
-              labelStyles: {
-                fontSize: theme.typography.size.body,
-              },
-              containerStyles: {
-                marginBottom: 10,
-              },
-            }}
-            icon={
-              <TouchableOpacity
-                onPress={() => setInvisiblePass(!invisiblePass)}
-              >
-                {!invisiblePass ? (
-                  <EyeOpen
-                    width={24}
-                    height={24}
-                    fill={theme.colors?.primary?.main}
-                  />
-                ) : (
-                  <EyeClose
-                    width={24}
-                    height={24}
-                    fill={theme.colors?.primary?.main}
-                  />
-                )}
-              </TouchableOpacity>
-            }
-          />
-          {password || watch("password").length ? (
-            <StrengthPasswordMeter password={watch("password")} />
-          ) : (
-            <></>
-          )}
-
-          <FormTextField
-            required
-            name="confirm_password"
-            label={"Confirmar Senha"}
-            control={control}
-            secureTextEntry={invisiblePassConfirmation}
-            icon={
-              <TouchableOpacity
-                onPress={() =>
-                  setInvisiblePassConfirmation(!invisiblePassConfirmation)
-                }
-              >
-                {invisiblePassConfirmation ? (
-                  <EyeClose
-                    width={24}
-                    height={24}
-                    fill={theme.colors?.primary?.main}
-                  />
-                ) : (
-                  <EyeOpen
-                    width={24}
-                    height={24}
-                    fill={theme.colors?.primary?.main}
-                  />
-                )}
-              </TouchableOpacity>
-            }
-          />
-          <FormTextField
-            required
-            name="birthday"
-            label={"Data de Nascimento"}
-            mask={RegexOf.date}
-            control={control}
-            keyboardType="numeric"
-          />
-
-          <AutoComplete
-            name="gender"
-            label="Gênero"
-            control={control}
-            data={[
-              { gender: "Homem cis" },
-              { gender: "Mulher cis" },
-              { gender: "Homem trans" },
-              { gender: "Mulher trans" },
-              { gender: "Não binário" },
-            ]}
-            keyToShow={"gender"}
-            keyToExtract="gender"
-          />
-
-          <FormTextField
-            required
-            name="phone_number"
-            label="Celular"
-            mask={RegexOf.phone}
-            control={control}
-            keyboardType="numeric"
-            placeholder="(00) 99999-9999"
-          />
-        </ScrollView>
+        <StepOne
+          onGoBack={handlePreviousStep}
+          onSubmit={(data) => onSubmit(data)}
+          initialValues={initialValues}
+        />
       ) : step === 2 ? (
-        <></>
+        <StepTwo
+          onSubmit={(data) => onSubmit(data)}
+          initialValues={initialValues}
+          onGoBack={handlePreviousStep}
+        />
       ) : step === 3 ? (
-        <></>
+        <StepThree
+          onSubmit={(data) => onSubmit(data)}
+          initialValues={initialValues}
+          onGoBack={handlePreviousStep}
+        />
       ) : (
         <></>
       )}
-    </Container>
+    </KeyboardAvoidingView>
   );
 }

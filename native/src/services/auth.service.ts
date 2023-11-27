@@ -1,5 +1,5 @@
+import { Instance } from "@config";
 import { IUserSignUp, IUser, IUserSignIn, IUserSigned } from "@models/Auth";
-import Instance from "src/config/api";
 const DEFAULT_PATH = "/auth";
 
 export default function UseAuth() {

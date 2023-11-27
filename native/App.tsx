@@ -1,9 +1,10 @@
-import { ThemeProvider } from "@contexts";
+import { ThemeProvider, AuthProvider } from "@contexts";
 import { NavigationContainer } from "@react-navigation/native";
 import Navigation from "@src";
 import { useFonts } from "expo-font";
 import { Keyboard, LogBox, TouchableWithoutFeedback } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 export default function App() {
   const [fontLoaded] = useFonts({
@@ -22,13 +23,17 @@ export default function App() {
   }
   return (
     <NavigationContainer>
-      <ThemeProvider>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <Navigation />
-          </GestureHandlerRootView>
-        </TouchableWithoutFeedback>
-      </ThemeProvider>
+      <QueryClientProvider client={new QueryClient()}>
+        <AuthProvider>
+          <ThemeProvider>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <Navigation />
+              </GestureHandlerRootView>
+            </TouchableWithoutFeedback>
+          </ThemeProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </NavigationContainer>
   );
 }
