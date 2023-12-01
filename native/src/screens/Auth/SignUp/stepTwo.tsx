@@ -39,7 +39,7 @@ export default function StepTwo({ onSubmit, initialValues, onGoBack }: Props) {
     company_id: Yup.string().required(Messages.required),
     course_id: Yup.string().required(Messages.required),
     period: Yup.string().required(Messages.required),
-    specialties: Yup.string().required(Messages.required),
+    specialties: Yup.string(),
   });
 
   const { control, handleSubmit } = useForm<IUserSignUp>({
@@ -76,7 +76,6 @@ export default function StepTwo({ onSubmit, initialValues, onGoBack }: Props) {
             keyboardType="numeric"
           />
           <FormTextField
-            required
             name="specialties"
             label={"Especialidades"}
             placeholder="STACK1, STACK2, STACK3"

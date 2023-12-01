@@ -54,9 +54,9 @@ export default ({ navigation }: Props) => {
       </View>
 
       <View style={{ gap: 5 }}>
-        <FormTextField name="email" control={control} label="Email" required />
+        <FormTextField name="email" control={control} label="Email" />
         <FormTextField
-          required
+          // required
           name="password"
           label={"Senha"}
           control={control}

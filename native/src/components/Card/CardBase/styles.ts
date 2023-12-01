@@ -1,5 +1,5 @@
-import { useTheme } from '@contexts';
-import { StyleSheet } from 'react-native';
+import { useTheme } from "@contexts";
+import { StyleSheet } from "react-native";
 
 const styles = () => {
   const theme = useTheme();
@@ -14,7 +14,7 @@ const styles = () => {
       },
       shadowOpacity: 0.05,
       shadowRadius: 5,
-      elevation: 0.8,
+      elevation: 1.5,
     },
   });
 };

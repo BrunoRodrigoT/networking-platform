@@ -66,9 +66,16 @@ export default function SignUp({ navigation }: Props) {
       setInitialValues({ ...dataCleaned });
       setStep((step) => step + 1);
     } else {
+      const specialtiesArray = dataCleaned.specialties
+        ?.split(",")
+        .map((e) => e.trim());
+
+      console.log(specialtiesArray, dataCleaned);
+
       SignUp({
         ...initialValues,
         ...dataCleaned,
+        specialties: specialtiesArray as never,
       });
     }
   };

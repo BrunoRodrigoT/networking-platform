@@ -11,7 +11,7 @@ import { Text, View } from "react-native";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useBusinessDays } from "@services";
 
-type Props = NativeStackScreenProps<IRootStackParamList, "CHECK_OVERTIME">;
+type Props = NativeStackScreenProps<IRootStackParamList, "PROFILE">;
 
 const validations = Yup.object().shape({
   hours: Yup.string().required("Campo Obrigatório"),

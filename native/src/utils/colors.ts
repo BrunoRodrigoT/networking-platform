@@ -58,16 +58,16 @@ const theme = {
     },
     fonts: {
       primary: {
-        normal: "OpenSans-Regular",
-        medium: "OpenSans-SemiBold",
-        light: "OpenSans-LightItalic",
+        normal: "RedHatDisplay-Regular",
+        medium: "RedHatDisplay-SemiBold",
+        light: "RedHatDisplay-LightItalic",
       },
       secondary: {
-        medium: "Montserrat-Medium",
-        normal: "Montserrat-Normal",
+        medium: "RedHatDisplay-Medium",
+        normal: "RedHatDisplay-Normal",
       },
       title: {
-        normal: "Nico-moji-Regular",
+        normal: "RedHatDisplay-SemiBold",
       },
     },
   },

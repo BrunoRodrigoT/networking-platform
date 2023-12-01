@@ -4,11 +4,16 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { IRootStackParamList } from "@models/Screens";
 import { Menu, CheckOvertime, SignIn, SignUp } from "@screens";
 import { AuthContext } from "./contexts/AuthContext";
+import Logo from "@assets/icons/svgs/icons/logo.svg";
+import { Text, TouchableOpacity, View } from "react-native";
+import { useTheme } from "./contexts/themeContext";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
-const Stack = createNativeStackNavigator<IRootStackParamList>();
+const Stack = createDrawerNavigator<IRootStackParamList>();
 
 export default function Navigation() {
   const { state } = React.useContext(AuthContext);
+  const theme = useTheme();
 
   return (
     <Stack.Navigator initialRouteName="MENU">
@@ -17,12 +22,30 @@ export default function Navigation() {
           <Stack.Screen
             name="MENU"
             component={Menu}
-            options={{ header: () => <></> }}
+            options={{
+              drawerLabel: "Página Inicial",
+              header: () => (
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: 19,
+                    backgroundColor: theme.colors.background.main,
+                  }}
+                >
+                  <Logo width={220} />
+                </View>
+              ),
+            }}
           />
           <Stack.Screen
-            name="CHECK_OVERTIME"
+            name="PROFILE"
             component={CheckOvertime}
-            options={{ header: () => <></> }}
+            options={{
+              drawerLabel: "Perfil",
+
+              header: () => <></>,
+            }}
           />
         </>
       ) : (
@@ -30,12 +53,12 @@ export default function Navigation() {
           <Stack.Screen
             name="SIGN_IN"
             component={SignIn}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, swipeEnabled: false }}
           />
           <Stack.Screen
             name="SIGN_UP"
             component={SignUp}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, swipeEnabled: false }}
           />
         </>
       )}

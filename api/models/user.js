@@ -17,7 +17,7 @@ const User = database.define("users", {
   gender: Sequelize.STRING,
   phone: Sequelize.STRING,
   period: Sequelize.INTEGER,
-  specialties: Sequelize.STRING,
+  specialties: Sequelize.ARRAY(Sequelize.STRING),
   accept_term: Sequelize.BOOLEAN,
   accept_promotions: Sequelize.BOOLEAN,
 });

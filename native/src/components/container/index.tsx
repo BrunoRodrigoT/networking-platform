@@ -18,7 +18,7 @@ const Container: FunctionComponent<IContainer> = ({
         backgroundColor: theme.colors.background.main,
       }}
     >
-      <StatusBar style="auto" />
+      <StatusBar style="auto" translucent />
 
       {image ? (
         <ImageBackground

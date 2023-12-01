@@ -1,5 +1,7 @@
 import { ThemeProvider, AuthProvider } from "@contexts";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
+import { Menu } from "@screens";
 import Navigation from "@src";
 import { useFonts } from "expo-font";
 import { Keyboard, LogBox, TouchableWithoutFeedback } from "react-native";
@@ -8,12 +10,11 @@ import { QueryClient, QueryClientProvider } from "react-query";
 
 export default function App() {
   const [fontLoaded] = useFonts({
-    "OpenSans-Regular": require("@assets/fonts/OpenSans-Regular.ttf"),
-    "OpenSans-SemiBold": require("@assets/fonts/OpenSans-SemiBold.ttf"),
-    "OpenSans-LightItalic": require("@assets/fonts/OpenSans-LightItalic.ttf"),
-    "Montserrat-Medium": require("@assets/fonts/Montserrat-Medium.ttf"),
-    "Montserrat-Normal": require("@assets/fonts/Montserrat-Regular.ttf"),
-    "Nico-moji-Regular": require("@assets/fonts/NicoMoji-Regular.ttf"),
+    "RedHatDisplay-Regular": require("@assets/fonts/RedHatDisplay-Regular.ttf"),
+    "RedHatDisplay-SemiBold": require("@assets/fonts/RedHatDisplay-SemiBold.ttf"),
+    "RedHatDisplay-LightItalic": require("@assets/fonts/RedHatDisplay-LightItalic.ttf"),
+    "RedHatDisplay-Medium": require("@assets/fonts/RedHatDisplay-Medium.ttf"),
+    "RedHatDisplay-Normal": require("@assets/fonts/RedHatDisplay-Regular.ttf"),
   });
 
   LogBox.ignoreAllLogs();
