@@ -1,83 +1,79 @@
-import { Alert, CardBase, Container } from "@components";
+import { Alert, CardBase, Container, GoBack } from "@components";
 import { AuthContext, useTheme } from "@contexts";
 import { Ionicons } from "@expo/vector-icons";
-import { IRootStackParamList } from "@models/Screens";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React from "react";
-import {
-  FlatList,
-  RefreshControl,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useMutation, useQuery } from "react-query";
-import { useFavorite, usePublications } from "@services";
 import { IPublications } from "@models/Publications";
 import { IError } from "@models/Request";
+import { IRootStackParamList } from "@models/Screens";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { usePublications } from "@services";
 import { format, parseISO } from "date-fns";
-import { ICreateFavorite, IFavorite } from "@models/Favorite";
+import React from "react";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { RefreshControl } from "react-native-gesture-handler";
+import { Modalize } from "react-native-modalize";
+import { useMutation, useQuery } from "react-query";
 
-type Props = NativeStackScreenProps<IRootStackParamList, "MENU">;
+type Props = NativeStackScreenProps<IRootStackParamList, "MY_PUBLICATIONS">;
 
-export default function Menu({ navigation }: Props) {
+export default function MyPublications({ navigation }: Props) {
   const theme = useTheme();
+  const modalizeRef = React.useRef<Modalize>(null);
+  const { state } = React.useContext(AuthContext);
+  const { findPublicationsByUser, deletePublication } = usePublications();
+  const [currentPubli, setCurrentPubli] = React.useState<IPublications>();
 
-  const { findPublications } = usePublications();
-  const { findFavorites, createFavorite, removeFavorite } = useFavorite();
-
-  const publicationsQuery = useQuery<IPublications[], IError, IPublications[]>(
-    ["publications"],
-    findPublications,
-    {
-      retry: false,
-    }
-  );
-  const favoritesQuery = useQuery<IFavorite[], IError, IFavorite[]>(
-    ["favorites"],
-    findFavorites,
-    {
-      retry: false,
-    }
-  );
-
-  const favoriteMutation = useMutation<
-    ICreateFavorite,
+  const publicationsByUserQuery = useQuery<
+    IPublications[],
     IError,
-    ICreateFavorite
-  >(createFavorite, {
-    onSuccess: () => {
-      favoritesQuery.refetch();
-    },
-  });
-  const unfavoriteMutation = useMutation<IError, IError, string>(
-    removeFavorite,
+    IPublications[]
+  >(
+    ["publicationsByUser", state.data.user.id],
+    () => findPublicationsByUser(state.data.user.id),
+    {
+      retry: false,
+    }
+  );
+
+  const deletePublicationMutation = useMutation<IError, IError, string>(
+    deletePublication,
     {
       onSuccess: () => {
-        favoritesQuery.refetch();
+        publicationsByUserQuery.refetch();
       },
     }
   );
 
+  const options = [
+    {
+      label: "Excluir Publicação",
+      onPress: (publication: IPublications) => {
+        modalizeRef.current?.close();
+        deletePublicationMutation.mutate(publication.id);
+      },
+    },
+  ];
+
+  const onOpenModal = (publication: IPublications) => {
+    setCurrentPubli(publication);
+    modalizeRef.current?.open();
+  };
+
   return (
-    <Container background>
+    <Container styles={{ paddingTop: theme.shape.padding }}>
+      <GoBack title="Minhas Publicações" />
+
       <Alert
-        open={publicationsQuery.isError}
-        message={publicationsQuery.error?.message}
+        open={publicationsByUserQuery.isError}
+        message={publicationsByUserQuery.error?.message}
         severity="error"
       />
       <Alert
-        open={favoriteMutation.isError}
-        message={favoriteMutation.error?.message}
-        severity="error"
-      />
-      <Alert
-        open={unfavoriteMutation.isError}
-        message={unfavoriteMutation.error?.message}
+        open={deletePublicationMutation.isError}
+        message={deletePublicationMutation.error?.message}
         severity="error"
       />
       <FlatList
-        data={publicationsQuery.data}
+        data={publicationsByUserQuery.data}
         style={{ flex: 1, paddingHorizontal: theme.shape.padding }}
         renderItem={({ item, index }) => (
           <CardBase
@@ -108,7 +104,6 @@ export default function Menu({ navigation }: Props) {
                     style={{
                       fontSize: theme.typography.size.regular,
                       fontFamily: theme.typography.fonts.primary.normal,
-                      flexWrap: "wrap",
                     }}
                   >
                     {item.user.username}
@@ -122,7 +117,7 @@ export default function Menu({ navigation }: Props) {
                   </Text>
                 </View>
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => onOpenModal(item)}>
                 <Ionicons
                   name="ellipsis-vertical-sharp"
                   size={30}
@@ -176,41 +171,6 @@ export default function Menu({ navigation }: Props) {
                 );
               })}
             </View>
-            {favoritesQuery.data?.find((e) => e.publication_id === item.id) ? (
-              <TouchableOpacity
-                onPress={() => unfavoriteMutation.mutate(item.id)}
-                style={{
-                  position: "absolute",
-                  bottom: 15,
-                  right: 15,
-                }}
-              >
-                <Ionicons
-                  name="heart"
-                  size={30}
-                  color={theme.colors.error.dark}
-                  style={{ alignSelf: "center" }}
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={() =>
-                  favoriteMutation.mutate({ publication_id: item.id })
-                }
-                style={{
-                  position: "absolute",
-                  bottom: 15,
-                  right: 15,
-                }}
-              >
-                <Ionicons
-                  name="heart"
-                  size={30}
-                  color={theme.colors.text.light}
-                  style={{ alignSelf: "center" }}
-                />
-              </TouchableOpacity>
-            )}
           </CardBase>
         )}
         showsVerticalScrollIndicator={false}
@@ -229,31 +189,64 @@ export default function Menu({ navigation }: Props) {
         }
         refreshControl={
           <RefreshControl
-            refreshing={publicationsQuery.isRefetching}
+            refreshing={publicationsByUserQuery.isRefetching}
             onRefresh={() => {
-              publicationsQuery.refetch();
+              publicationsByUserQuery.refetch();
             }}
           />
         }
       />
-      <TouchableOpacity
-        onPress={() => navigation.navigate("PUBLICATION_FORM")}
-        style={{
-          position: "absolute",
-          bottom: 20,
-          right: 20,
-          backgroundColor: theme.colors.primary.main,
-          padding: 10,
-          borderRadius: 50,
+      <Modalize
+        ref={modalizeRef}
+        modalStyle={{
+          flex: 0.2,
         }}
+        HeaderComponent={
+          <View>
+            <Text
+              style={{
+                color: theme.colors.primary.dark,
+                fontFamily: theme.typography.fonts.primary.normal,
+                fontSize: theme.typography.size.regular,
+                textAlign: "center",
+                paddingVertical: 20,
+              }}
+            >
+              Opções
+            </Text>
+          </View>
+        }
       >
-        <Ionicons
-          name="add-outline"
-          size={30}
-          color={theme.colors.common.white}
-          style={{ alignSelf: "center" }}
-        />
-      </TouchableOpacity>
+        <View style={{ gap: 10 }}>
+          {options.map((e, index) => {
+            return (
+              <TouchableOpacity
+                key={index}
+                onPress={() => (currentPubli ? e.onPress(currentPubli) : null)}
+                style={{
+                  borderBottomColor: theme.colors.text.dark,
+                  borderBottomWidth: 1,
+                  paddingVertical: 10,
+                  borderRadius: 10,
+                  alignSelf: "center",
+                  width: "100%",
+                }}
+              >
+                <Text
+                  style={{
+                    color: theme.colors.error.dark,
+                    fontFamily: theme.typography.fonts.primary.normal,
+                    fontSize: theme.typography.size.regular,
+                    textAlign: "center",
+                  }}
+                >
+                  {e.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </Modalize>
     </Container>
   );
 }

@@ -9,6 +9,7 @@ import {
   SignUp,
   Publication,
   Favorites,
+  MyPublications,
 } from "@screens";
 import { AuthContext } from "./contexts/AuthContext";
 import Logo from "@assets/icons/svgs/icons/logo.svg";
@@ -65,6 +66,14 @@ export default function Navigation() {
           <Stack.Screen
             name="FAVORITES"
             component={Favorites}
+            options={{
+              drawerLabel: "Postagens",
+              header: () => <></>,
+            }}
+          />
+          <Stack.Screen
+            name="MY_PUBLICATIONS"
+            component={MyPublications}
             options={{
               drawerLabel: "Postagens",
               header: () => <></>,

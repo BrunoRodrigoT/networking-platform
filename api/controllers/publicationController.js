@@ -94,10 +94,56 @@ router.get("/:user_id", async (req, res) => {
         return res.status(400).json(Messages.userNotFound);
       }
 
-      const publication = await Publication.findAll({
+      const publications = await Publication.findAll({
         where: { user_id: req.params.user_id },
       });
-      res.status(201).json(publication);
+      const response = await Promise.all(
+        publications.map(async (e) => {
+          const user = await User.findOne({
+            where: { id: e.dataValues.user_id },
+          });
+          const company = await Company.findOne({
+            where: { id: e.dataValues.company_id },
+          });
+          const course = await Course.findOne({
+            where: { id: e.dataValues.course_id },
+          });
+
+          return { ...e.dataValues, user, company, course };
+        })
+      );
+      res.status(201).json(response.reverse());
+    } catch (error) {
+      res.status(500).json(Messages.internalServerError);
+    }
+  });
+});
+
+router.delete("/:id", async (req, res) => {
+  const token = req.header("Authorization");
+  if (!token) {
+    return res.status(401).json(Messages.unalthorized);
+  }
+
+  jwt.verify(token, "your-secret-key", async (err) => {
+    try {
+      if (err) {
+        return res.status(401).json(Messages.unalthorized);
+      }
+
+      const publicationAlreadyExists = await Publication.findOne({
+        where: { id: req.params.id },
+      });
+
+      if (!publicationAlreadyExists) {
+        return res.status(400).json(Messages.publicationNotFound);
+      }
+
+      await Publication.destroy({
+        where: { id: req.params.id },
+      });
+
+      res.status(201).json({ status: 201, message: "Publicação deletada" });
     } catch (error) {
       res.status(500).json(Messages.internalServerError);
     }

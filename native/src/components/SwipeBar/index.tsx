@@ -30,7 +30,7 @@ export default function SwipeBar() {
     },
     {
       name: "Minhas Postagens",
-      route: "PROFILE",
+      route: "MY_PUBLICATIONS",
     },
     {
       name: "Favoritos",

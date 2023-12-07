@@ -5,6 +5,7 @@ export interface IRootStackParamList extends ParamListBase {
   PROFILE: undefined;
   PUBLICATION_FORM: undefined;
   FAVORITES: undefined
+  MY_PUBLICATIONS: undefined
   //Sign
   SIGN_IN: undefined;
   SIGN_UP: undefined;
