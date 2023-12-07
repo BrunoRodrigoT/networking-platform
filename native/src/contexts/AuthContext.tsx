@@ -105,6 +105,7 @@ const AuthProvider = ({ children }: IContextProviderProps) => {
           type: AuthReducerEnum.SUCCESS,
           payload: data,
         });
+        Instance.defaults.headers.common["authorization"] = data.token;
       },
       onError: (error: IError) => {
         console.log(error);
@@ -162,7 +163,7 @@ const AuthProvider = ({ children }: IContextProviderProps) => {
           payload: JSON.parse(data),
         });
         Instance.defaults.headers.common["authorization"] =
-          "Bearer " + JSON.parse(data).token;
+          JSON.parse(data).token;
       }
     });
   }, []);

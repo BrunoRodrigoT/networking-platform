@@ -37,6 +37,10 @@ const Messages = {
     message: "Email ou senha inválidos",
     status: 401,
   },
+  favoriteNotFound: {
+    message: "Publicação não encontrada",
+    status: 400,
+  },
 };
 
 module.exports = Messages;

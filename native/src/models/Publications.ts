@@ -3,7 +3,7 @@ import { ICompany } from "./Company";
 import { ICourse } from "./Course";
 
 interface IPublications {
-  id: number;
+  id: string;
   title: string;
   description: string;
   tags: string[];
@@ -20,7 +20,9 @@ interface IPublications {
 interface IPublicationForm
   extends Omit<
     IPublications,
-    "id" | "user" | "company" | "course" | "created_at" | "updated_at"
-  > {}
+    "id" | "user" | "company" | "course" | "created_at" | "updated_at" | 'tags'
+  > {
+  tags: string;
+}
 
 export { IPublications, IPublicationForm };

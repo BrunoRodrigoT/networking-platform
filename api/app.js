@@ -6,6 +6,7 @@ const authController = require("./controllers/authController");
 const companyController = require("./controllers/companyController");
 const courseController = require("./controllers/courseController");
 const publicationController = require("./controllers/publicationController");
+const favoriteController = require("./controllers/favoriteController");
 
 const dataBaseConnection = require("./database/database.config");
 
@@ -17,6 +18,7 @@ app.use("/api/auth", authController);
 app.use("/api/company", companyController);
 app.use("/api/course", courseController);
 app.use("/api/publication", publicationController);
+app.use("/api/favorite", favoriteController);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

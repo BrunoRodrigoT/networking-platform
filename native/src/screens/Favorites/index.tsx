@@ -1,8 +1,12 @@
-import { Alert, CardBase, Container } from "@components";
-import { AuthContext, useTheme } from "@contexts";
+import { Alert, CardBase, Container, GoBack } from "@components";
+import { useTheme } from "@contexts";
 import { Ionicons } from "@expo/vector-icons";
+import { ICreateFavorite, IFavorite } from "@models/Favorite";
+import { IError } from "@models/Request";
 import { IRootStackParamList } from "@models/Screens";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useFavorite } from "@services";
+import { format, parseISO } from "date-fns";
 import React from "react";
 import {
   FlatList,
@@ -12,27 +16,13 @@ import {
   View,
 } from "react-native";
 import { useMutation, useQuery } from "react-query";
-import { useFavorite, usePublications } from "@services";
-import { IPublications } from "@models/Publications";
-import { IError } from "@models/Request";
-import { format, parseISO } from "date-fns";
-import { ICreateFavorite, IFavorite } from "@models/Favorite";
 
-type Props = NativeStackScreenProps<IRootStackParamList, "MENU">;
+type Props = NativeStackScreenProps<IRootStackParamList, "FAVORITES">;
 
-export default function Menu({ navigation }: Props) {
+export default function Favorites({ navigation }: Props) {
   const theme = useTheme();
-
-  const { findPublications } = usePublications();
   const { findFavorites, createFavorite, removeFavorite } = useFavorite();
 
-  const publicationsQuery = useQuery<IPublications[], IError, IPublications[]>(
-    ["publications"],
-    findPublications,
-    {
-      retry: false,
-    }
-  );
   const favoritesQuery = useQuery<IFavorite[], IError, IFavorite[]>(
     ["favorites"],
     findFavorites,
@@ -40,16 +30,6 @@ export default function Menu({ navigation }: Props) {
       retry: false,
     }
   );
-
-  const favoriteMutation = useMutation<
-    ICreateFavorite,
-    IError,
-    ICreateFavorite
-  >(createFavorite, {
-    onSuccess: () => {
-      favoritesQuery.refetch();
-    },
-  });
   const unfavoriteMutation = useMutation<IError, IError, string>(
     removeFavorite,
     {
@@ -60,24 +40,19 @@ export default function Menu({ navigation }: Props) {
   );
 
   return (
-    <Container background>
-      <Alert
-        open={publicationsQuery.isError}
-        message={publicationsQuery.error?.message}
-        severity="error"
-      />
-      <Alert
-        open={favoriteMutation.isError}
-        message={favoriteMutation.error?.message}
-        severity="error"
-      />
+    <Container
+      styles={{
+        paddingTop: theme.shape.padding,
+      }}
+    >
+      <GoBack title="Meus Favoritos" />
       <Alert
         open={unfavoriteMutation.isError}
         message={unfavoriteMutation.error?.message}
         severity="error"
       />
       <FlatList
-        data={publicationsQuery.data}
+        data={favoritesQuery.data}
         style={{ flex: 1, paddingHorizontal: theme.shape.padding }}
         renderItem={({ item, index }) => (
           <CardBase
@@ -136,7 +111,7 @@ export default function Menu({ navigation }: Props) {
                 fontFamily: theme.typography.fonts.primary.normal,
               }}
             >
-              {item.title + ":"}
+              {item.publication.title + ":"}
             </Text>
             <Text
               style={{
@@ -144,7 +119,7 @@ export default function Menu({ navigation }: Props) {
                 fontFamily: theme.typography.fonts.primary.normal,
               }}
             >
-              {item.description}
+              {item.publication.description}
             </Text>
             <View
               style={{
@@ -161,7 +136,7 @@ export default function Menu({ navigation }: Props) {
               >
                 TAGS :{" "}
               </Text>
-              {item.tags.map((e) => {
+              {item.publication.tags.map((e) => {
                 return (
                   <Text
                     style={{
@@ -175,41 +150,22 @@ export default function Menu({ navigation }: Props) {
                 );
               })}
             </View>
-            {favoritesQuery.data?.find((e) => e.publication_id === item.id) ? (
-              <TouchableOpacity
-                onPress={() => unfavoriteMutation.mutate(item.id)}
-                style={{
-                  position: "absolute",
-                  bottom: 15,
-                  right: 15,
-                }}
-              >
-                <Ionicons
-                  name="heart"
-                  size={30}
-                  color={theme.colors.error.dark}
-                  style={{ alignSelf: "center" }}
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={() =>
-                  favoriteMutation.mutate({ publication_id: item.id })
-                }
-                style={{
-                  position: "absolute",
-                  bottom: 15,
-                  right: 15,
-                }}
-              >
-                <Ionicons
-                  name="heart"
-                  size={30}
-                  color={theme.colors.text.light}
-                  style={{ alignSelf: "center" }}
-                />
-              </TouchableOpacity>
-            )}
+
+            <TouchableOpacity
+              onPress={() => unfavoriteMutation.mutate(item.id)}
+              style={{
+                position: "absolute",
+                bottom: 15,
+                right: 15,
+              }}
+            >
+              <Ionicons
+                name="heart"
+                size={30}
+                color={theme.colors.error.dark}
+                style={{ alignSelf: "center" }}
+              />
+            </TouchableOpacity>
           </CardBase>
         )}
         showsVerticalScrollIndicator={false}
@@ -228,31 +184,13 @@ export default function Menu({ navigation }: Props) {
         }
         refreshControl={
           <RefreshControl
-            refreshing={publicationsQuery.isRefetching}
+            refreshing={favoritesQuery.isRefetching}
             onRefresh={() => {
-              publicationsQuery.refetch();
+              favoritesQuery.refetch();
             }}
           />
         }
       />
-      <TouchableOpacity
-        onPress={() => navigation.navigate("PUBLICATION_FORM")}
-        style={{
-          position: "absolute",
-          bottom: 20,
-          right: 20,
-          backgroundColor: theme.colors.primary.main,
-          padding: 10,
-          borderRadius: 50,
-        }}
-      >
-        <Ionicons
-          name="add-outline"
-          size={30}
-          color={theme.colors.common.white}
-          style={{ alignSelf: "center" }}
-        />
-      </TouchableOpacity>
     </Container>
   );
 }

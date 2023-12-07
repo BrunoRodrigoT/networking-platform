@@ -19,7 +19,7 @@ const validations = Yup.object().shape({
   workload: Yup.boolean().required("Campo Obrigatório"),
 });
 
-export default function CheckOvertime({ navigation }: Props) {
+export default function Profile({ navigation }: Props) {
   const [overtimeTotal, setOvertimeTotal] = React.useState<number>();
   const [overtimePartial, setOvertimePartial] = React.useState<number>();
 
@@ -68,7 +68,7 @@ export default function CheckOvertime({ navigation }: Props) {
 
   return (
     <Container styles={{ padding: theme.shape.padding, gap: 10 }}>
-      <GoBack title="Calcular horas" />
+      <GoBack title="Perfil" />
 
       <FormTextField
         control={control}

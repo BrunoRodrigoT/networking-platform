@@ -2,12 +2,20 @@ import React from "react";
 import "react-native-gesture-handler";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { IRootStackParamList } from "@models/Screens";
-import { Menu, CheckOvertime, SignIn, SignUp } from "@screens";
+import {
+  Menu,
+  Profile,
+  SignIn,
+  SignUp,
+  Publication,
+  Favorites,
+} from "@screens";
 import { AuthContext } from "./contexts/AuthContext";
 import Logo from "@assets/icons/svgs/icons/logo.svg";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "./contexts/themeContext";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import SwipeBar from "./components/SwipeBar";
 
 const Stack = createDrawerNavigator<IRootStackParamList>();
 
@@ -16,7 +24,7 @@ export default function Navigation() {
   const theme = useTheme();
 
   return (
-    <Stack.Navigator initialRouteName="MENU">
+    <Stack.Navigator initialRouteName="MENU" drawerContent={() => <SwipeBar />}>
       {state.data.token ? (
         <>
           <Stack.Screen
@@ -40,10 +48,25 @@ export default function Navigation() {
           />
           <Stack.Screen
             name="PROFILE"
-            component={CheckOvertime}
+            component={Profile}
             options={{
               drawerLabel: "Perfil",
-
+              header: () => <></>,
+            }}
+          />
+          <Stack.Screen
+            name="PUBLICATION_FORM"
+            component={Publication}
+            options={{
+              drawerLabel: "Postagens",
+              header: () => <></>,
+            }}
+          />
+          <Stack.Screen
+            name="FAVORITES"
+            component={Favorites}
+            options={{
+              drawerLabel: "Postagens",
               header: () => <></>,
             }}
           />

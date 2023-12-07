@@ -70,8 +70,6 @@ export default function SignUp({ navigation }: Props) {
         ?.split(",")
         .map((e) => e.trim());
 
-      console.log(specialtiesArray, dataCleaned);
-
       SignUp({
         ...initialValues,
         ...dataCleaned,

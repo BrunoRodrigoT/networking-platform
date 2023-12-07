@@ -43,9 +43,9 @@ Instance.interceptors.response.use(
       typeof err?.response?.data === "object"
         ? err?.response?.data
         : {
-            status: 500,
-            message: "Houve um problema ao contatar o servidor.",
-          };
+          status: 500,
+          message: "Houve um problema ao contatar o servidor.",
+        };
     return Promise.reject(error);
   }
 );

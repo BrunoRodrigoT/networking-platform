@@ -11,6 +11,7 @@ import Alert from "./Alert/index";
 import Footer from "./Footer/index";
 import Checkbox from "./Checkbox/index";
 import Steps from "./Steps/index";
+import SwipeBar from './SwipeBar/index';
 
 export {
   FormTextField,
@@ -26,4 +27,5 @@ export {
   Footer,
   Checkbox,
   Steps,
+  SwipeBar
 };

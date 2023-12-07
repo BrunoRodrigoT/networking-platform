@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Keyboard,
 } from "react-native";
-import FormTextField from "../formTextField";
 import type IAutoCompleteProps from "./types";
 import { useController } from "react-hook-form";
 import styles from "./styles";
@@ -22,12 +21,12 @@ import More from "@assets/icons/svgs/icons/more.svg";
 import Close from "@assets/icons/svgs/icons/close.svg";
 import DoubleArrow from "@assets/icons/svgs/icons/double_arrow.svg";
 import { useTheme } from "@contexts";
+import FormTextField from "../formTextField";
 function AutoComplete<T>(props: IAutoCompleteProps<T>) {
   const [filterList, setFilterList] = useState<any>([]);
   const [openList, setOpenList] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
   const theme = useTheme();
-
   const { field } = useController({
     control: props.control,
     name: props.name,
