@@ -100,18 +100,25 @@ export default function MyPublications({ navigation }: Props) {
                   color={theme.colors.text.dark}
                 />
                 <View style={{}}>
-                  <Text
-                    style={{
-                      fontSize: theme.typography.size.regular,
-                      fontFamily: theme.typography.fonts.primary.normal,
-                    }}
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("PROFILE", { id: item.user.id })
+                    }
                   >
-                    {item.user.username}
-                    {" - "}
-                    <Text style={{ color: theme.colors.secondary.main }}>
-                      {item.course.name}
+                    <Text
+                      style={{
+                        fontSize: theme.typography.size.regular,
+                        fontFamily: theme.typography.fonts.primary.normal,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {item.user.username}
+                      {" - "}
+                      <Text style={{ color: theme.colors.secondary.main }}>
+                        {item.course.name}
+                      </Text>
                     </Text>
-                  </Text>
+                  </TouchableOpacity>
                   <Text>
                     {format(parseISO(item.createdAt), "dd/MM/yyyy HH:mm")}
                   </Text>
