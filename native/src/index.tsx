@@ -17,6 +17,8 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "./contexts/themeContext";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import SwipeBar from "./components/SwipeBar";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 const Stack = createDrawerNavigator<IRootStackParamList>();
 
@@ -33,7 +35,7 @@ export default function Navigation() {
             component={Menu}
             options={{
               drawerLabel: "Página Inicial",
-              header: () => (
+              header: ({ navigation }) => (
                 <View
                   style={{
                     alignItems: "center",
@@ -42,6 +44,30 @@ export default function Navigation() {
                     backgroundColor: theme.colors.background.main,
                   }}
                 >
+                  <TouchableOpacity
+                    onPress={() => navigation.openDrawer()}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      backgroundColor: theme.colors.primary.dark,
+                      paddingRight: 25,
+                      paddingLeft: 15,
+                      paddingTop: 25,
+                      paddingBottom: 35,
+                      borderBottomRightRadius: 70,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      elevation: 1,
+                    }}
+                  >
+                    <Ionicons
+                      name="person"
+                      size={30}
+                      color={theme.colors.common.white}
+                      style={{ alignSelf: "center" }}
+                    />
+                  </TouchableOpacity>
                   <Logo width={220} />
                 </View>
               ),
@@ -53,6 +79,7 @@ export default function Navigation() {
             options={{
               drawerLabel: "Perfil",
               header: () => <></>,
+              swipeEnabled: false,
             }}
           />
           <Stack.Screen
@@ -61,6 +88,7 @@ export default function Navigation() {
             options={{
               drawerLabel: "Postagens",
               header: () => <></>,
+              swipeEnabled: false,
             }}
           />
           <Stack.Screen

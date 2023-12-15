@@ -15,7 +15,7 @@ interface IUser {
   gender: string;
   phone: string;
   period: string;
-  specialties: string;
+  specialties: string[];
   created_at: Date;
   updated_at: Date;
   company_id: string;
@@ -34,9 +34,10 @@ interface IUserSigned {
 interface IUserSignUp
   extends Omit<
     IUser,
-    "id" | "course" | "company" | "created_at" | "updated_at"
+    "id" | "course" | "company" | "created_at" | "updated_at" | "specialties"
   > {
   password_confirm: string;
+  specialties: string
 }
 
 interface IAuthReducerState {

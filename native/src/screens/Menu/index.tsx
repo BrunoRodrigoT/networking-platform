@@ -76,6 +76,7 @@ export default function Menu({ navigation }: Props) {
         message={unfavoriteMutation.error?.message}
         severity="error"
       />
+
       <FlatList
         data={publicationsQuery.data}
         style={{ flex: 1, paddingHorizontal: theme.shape.padding }}
@@ -104,19 +105,25 @@ export default function Menu({ navigation }: Props) {
                   color={theme.colors.text.dark}
                 />
                 <View style={{}}>
-                  <Text
-                    style={{
-                      fontSize: theme.typography.size.regular,
-                      fontFamily: theme.typography.fonts.primary.normal,
-                      flexWrap: "wrap",
-                    }}
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("PROFILE", { id: item.user.id })
+                    }
                   >
-                    {item.user.username}
-                    {" - "}
-                    <Text style={{ color: theme.colors.secondary.main }}>
-                      {item.course.name}
+                    <Text
+                      style={{
+                        fontSize: theme.typography.size.regular,
+                        fontFamily: theme.typography.fonts.primary.normal,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {item.user.username}
+                      {" - "}
+                      <Text style={{ color: theme.colors.secondary.main }}>
+                        {item.course.name}
+                      </Text>
                     </Text>
-                  </Text>
+                  </TouchableOpacity>
                   <Text>
                     {format(parseISO(item.createdAt), "dd/MM/yyyy HH:mm")}
                   </Text>

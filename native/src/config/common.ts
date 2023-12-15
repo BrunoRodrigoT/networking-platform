@@ -1,4 +1,4 @@
-const API_URL = "https://7a13-177-221-37-197.ngrok-free.app/api";
+const API_URL = "https://8f08-177-223-23-87.ngrok-free.app/api";
 const character = API_URL[API_URL.length - 5];
 const base =
   character == "0"

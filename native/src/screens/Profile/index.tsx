@@ -1,159 +1,272 @@
-import { Button, Container, FormTextField, GoBack, Radio } from "@components";
-import { RegexOf, Yup } from "@config";
-import { useTheme } from "@contexts";
-import { ICheckOvertimeForm } from "@models/CheckOvertime";
+import { Alert, CardBase, Container, GoBack } from "@components";
+import { AuthContext, useTheme } from "@contexts";
+import { Ionicons } from "@expo/vector-icons";
+import { IUser } from "@models/Auth";
+import { IPublications } from "@models/Publications";
+import { IError } from "@models/Request";
 import { IRootStackParamList } from "@models/Screens";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { cleanUpMask, formatWithMask } from "@utils/mask";
+import { UseUser, usePublications } from "@services";
+import { format, parseISO } from "date-fns";
 import React from "react";
-import { useForm } from "react-hook-form";
-import { Text, View } from "react-native";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useBusinessDays } from "@services";
+import { Text, TouchableOpacity, View } from "react-native";
+import { FlatList, RefreshControl } from "react-native-gesture-handler";
+import { useQuery } from "react-query";
 
 type Props = NativeStackScreenProps<IRootStackParamList, "PROFILE">;
 
-const validations = Yup.object().shape({
-  hours: Yup.string().required("Campo Obrigatório"),
-  money: Yup.string().required("Campo Obrigatório"),
-  workload: Yup.boolean().required("Campo Obrigatório"),
-});
-
-export default function Profile({ navigation }: Props) {
-  const [overtimeTotal, setOvertimeTotal] = React.useState<number>();
-  const [overtimePartial, setOvertimePartial] = React.useState<number>();
-
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
-
-  const businessDays = useBusinessDays(currentYear, currentMonth).length;
-
-  const defaultValues: ICheckOvertimeForm = {
-    hours: "",
-    money: "",
-    workload: true,
-  };
-  const { control, handleSubmit, reset } = useForm<ICheckOvertimeForm>({
-    defaultValues: defaultValues,
-    resolver: yupResolver<ICheckOvertimeForm>(validations),
-  });
-
-  const onSubmit = handleSubmit((values) => {
-    const data = { ...values };
-    data.money = +cleanUpMask(data.money as string, /[R$\s.]/g).replace(
-      ",",
-      "."
-    );
-
-    data.hours = +cleanUpMask(data.hours as string, /[R$\s.]/g).replace(
-      ",",
-      "."
-    );
-
-    const monthHours: number = data.workload
-      ? businessDays * 8
-      : businessDays * 6;
-
-    const hourAmount = data.money / monthHours;
-
-    const totalAmount = hourAmount * data.hours;
-    const partialAmout = totalAmount - data.money;
-
-    setOvertimeTotal(+totalAmount.toFixed(2));
-    setOvertimePartial(+partialAmout.toFixed(2));
-    reset(defaultValues);
-  });
-
+export default function Profile({ route: { params } }: Props) {
   const theme = useTheme();
 
+  const { state } = React.useContext(AuthContext);
+  const { findUserById } = UseUser();
+  const { findPublicationsByUser } = usePublications();
+
+  const userId = params?.id ? params.id : state.data.user.id;
+
+  const userQuery = useQuery<IUser, IError, IUser>(
+    ["user", userId],
+    () => findUserById(userId),
+    {
+      enabled: !!userId,
+      retry: false,
+    }
+  );
+
+  const publicationsByUserQuery = useQuery<
+    IPublications[],
+    IError,
+    IPublications[]
+  >(["publicationsByUser", userId], () => findPublicationsByUser(userId), {
+    retry: false,
+    enabled: !!userId,
+  });
+
   return (
-    <Container styles={{ padding: theme.shape.padding, gap: 10 }}>
-      <GoBack title="Perfil" />
-
-      <FormTextField
-        control={control}
-        name="money"
-        label="Salário"
-        mask={RegexOf.price}
-        keyboardType="number-pad"
-      />
-      <FormTextField
-        control={control}
-        name="hours"
-        label="Horas batidas"
-        mask={RegexOf.hours}
-        keyboardType="number-pad"
+    <Container styles={{ gap: 10 }}>
+      <Alert
+        open={userQuery.isError}
+        message={userQuery.error?.message}
+        severity="error"
       />
 
-      <Text
-        style={{
-          color: theme.colors.text?.dark,
-          fontSize: theme.typography.size?.body,
-          fontFamily: theme.typography.fonts?.primary.normal,
-        }}
-      >
-        Tipo de horário:
-      </Text>
-
-      <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-        <Radio
-          control={control}
-          label="Estágio"
-          name="workload"
-          value={false}
-        />
-
-        <Radio control={control} label="Padrão" name="workload" value={true} />
-      </View>
-
-      <View style={{ alignSelf: "flex-end" }}>
-        {overtimeTotal && (
-          <Text
+      <FlatList
+        ListHeaderComponent={
+          <View
             style={{
-              fontSize: theme.typography.size.regular,
-              fontFamily: theme.typography.fonts.primary.light,
-
-              color: theme.colors.primary.dark,
+              flex: 0.5,
+              backgroundColor: theme.colors.primary.dark,
+              borderBottomRightRadius: 30,
+              borderBottomLeftRadius: 30,
+              elevation: 2,
+              padding: theme.shape.padding,
+              marginBottom: 10,
             }}
           >
-            <>
-              Valor total:{" "}
-              <Text style={{ fontWeight: "bold" }}>
-                {
-                  formatWithMask({
-                    text: overtimeTotal.toString(),
-                    mask: RegexOf.price,
-                  }).masked
-                }
-              </Text>
-            </>
-          </Text>
-        )}
-        {overtimePartial && (
-          <Text
-            style={{
-              fontSize: theme.typography.size.regular,
-              fontFamily: theme.typography.fonts.primary.light,
-              color: theme.colors.primary.dark,
+            <GoBack />
+            <View style={{ flex: 1, gap: 10 }}>
+              <View
+                style={{
+                  flex: 0.5,
+                  justifyContent: "center",
+                  gap: 10,
+                  alignItems: "center",
+                  flexDirection: "row",
+                  paddingVertical: 10,
+                }}
+              >
+                <Ionicons
+                  name="person-circle-sharp"
+                  color={theme.colors.common.white}
+                  size={80}
+                />
+                <View style={{ width: 300 }}>
+                  <Text
+                    style={{
+                      color: theme.colors.common.white,
+                      fontFamily: theme.typography.fonts.primary.normal,
+                      fontSize: theme.typography.size.title,
+                      textAlign: "center",
+                    }}
+                  >
+                    {userQuery.data?.username}{" "}
+                    <Text style={{ color: theme.colors.secondary.main }}>
+                      TSI
+                    </Text>
+                  </Text>
+                  <Text
+                    style={{
+                      color: theme.colors.common.white,
+                      fontFamily: theme.typography.fonts.primary.normal,
+                      fontSize: theme.typography.size.body,
+                      textAlign: "center",
+                    }}
+                  >
+                    {userQuery.data?.specialties.map(
+                      (t, i) =>
+                        `${t} ${
+                          i + 1 === userQuery.data?.specialties.length
+                            ? ""
+                            : "- "
+                        }`
+                    )}
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  flex: 0.4,
+                  gap: 5,
+                  marginTop: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    color: theme.colors.secondary.main,
+                    fontFamily: theme.typography.fonts.primary.normal,
+                    fontSize: theme.typography.size.regular,
+                  }}
+                >
+                  CONTATOS:
+                </Text>
+                <Text
+                  style={{
+                    color: theme.colors.common.white,
+                    fontFamily: theme.typography.fonts.primary.normal,
+                    fontSize: theme.typography.size.body,
+                  }}
+                >
+                  Telefone: {userQuery.data?.phone}
+                </Text>
+                <Text
+                  style={{
+                    color: theme.colors.common.white,
+                    fontFamily: theme.typography.fonts.primary.normal,
+                    fontSize: theme.typography.size.body,
+                  }}
+                >
+                  Email: {userQuery.data?.email}
+                </Text>
+              </View>
+            </View>
+          </View>
+        }
+        data={publicationsByUserQuery.data}
+        renderItem={({ item, index }) => (
+          <CardBase
+            key={index}
+            styles={{
+              padding: theme.shape.padding,
+              marginBottom: 10,
+              marginHorizontal: theme.shape.padding,
+              gap: 7,
             }}
           >
-            <>
-              Hora extra:{" "}
-              <Text style={{ fontWeight: "bold" }}>
-                {
-                  formatWithMask({
-                    text: overtimePartial.toString(),
-                    mask: RegexOf.price,
-                  }).masked
-                }
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{ flexDirection: "row", gap: 10, alignItems: "center" }}
+              >
+                <Ionicons
+                  name="person-sharp"
+                  size={50}
+                  color={theme.colors.text.dark}
+                />
+                <View style={{}}>
+                  <Text
+                    style={{
+                      fontSize: theme.typography.size.regular,
+                      fontFamily: theme.typography.fonts.primary.normal,
+                    }}
+                  >
+                    {item.user.username}
+                    {" - "}
+                    <Text style={{ color: theme.colors.secondary.main }}>
+                      {item.course.name}
+                    </Text>
+                  </Text>
+                  <Text>
+                    {format(parseISO(item.createdAt), "dd/MM/yyyy HH:mm")}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Text
+              style={{
+                fontSize: theme.typography.size.regular,
+                color: theme.colors.secondary.main,
+                fontFamily: theme.typography.fonts.primary.normal,
+              }}
+            >
+              {item.title + ":"}
+            </Text>
+            <Text
+              style={{
+                fontSize: theme.typography.size.body,
+                fontFamily: theme.typography.fonts.primary.normal,
+              }}
+            >
+              {item.description}
+            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: theme.typography.fonts.primary.normal,
+                }}
+              >
+                TAGS :{" "}
               </Text>
-            </>
-          </Text>
+              {item.tags.map((e) => {
+                return (
+                  <Text
+                    style={{
+                      fontSize: theme.typography.size.body,
+                      fontFamily: theme.typography.fonts.primary.normal,
+                      color: theme.colors.text.dark,
+                    }}
+                  >
+                    {e + " | "}
+                  </Text>
+                );
+              })}
+            </View>
+          </CardBase>
         )}
-      </View>
-      <Button variant="primary" onPress={onSubmit}>
-        Checar
-      </Button>
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text
+            style={{
+              fontFamily: theme.typography.fonts.primary.light,
+              fontSize: theme.typography.size.body,
+              marginTop: 15,
+              textAlign: "center",
+              color: theme.colors.text?.light,
+            }}
+          >
+            Nenhuma publicação encontrada
+          </Text>
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={publicationsByUserQuery.isRefetching}
+            onRefresh={() => {
+              publicationsByUserQuery.refetch();
+            }}
+          />
+        }
+      />
     </Container>
   );
 }

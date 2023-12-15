@@ -21,6 +21,11 @@ const Messages = {
     message: "Email inválido",
     status: 400,
   },
+
+  invalidPassword: {
+    message: "Senha inválida",
+    status: 400,
+  },
   userNotFound: {
     message: "Usuário não encontrado",
     status: 404,

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Overtime-app",
-    "slug": "overtime-app",
+    "name": "OportUni",
+    "slug": "oportuni",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#f9f9f9"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -19,10 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.brunorodrigot.oportuni"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d5a68e50-e661-46e4-9aef-495bbb373e7b"
+      }
+    },
+    "owner": "brunorodrigot"
   }
 }

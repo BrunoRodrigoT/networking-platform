@@ -26,7 +26,7 @@ const initialAuthState: IAuthReducerState = {
       gender: "",
       phone: "",
       period: "",
-      specialties: "",
+      specialties: [],
       company_id: "",
       course_id: "",
       accept_promotions: false,
