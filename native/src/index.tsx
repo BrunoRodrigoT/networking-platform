@@ -10,14 +10,14 @@ import {
   Publication,
   Favorites,
   MyPublications,
+  Search,
 } from "@screens";
 import { AuthContext } from "./contexts/AuthContext";
 import Logo from "@assets/icons/svgs/icons/logo.svg";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { useTheme } from "./contexts/themeContext";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import SwipeBar from "./components/SwipeBar";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
 const Stack = createDrawerNavigator<IRootStackParamList>();
@@ -105,6 +105,27 @@ export default function Navigation() {
             options={{
               drawerLabel: "Postagens",
               header: () => <></>,
+            }}
+          />
+          <Stack.Screen
+            name="SEARCH"
+            component={Search}
+            options={{
+              drawerLabel: "Pesquisar",
+              header: () => (
+                <>
+                  <View
+                    style={{
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginTop: 19,
+                      backgroundColor: theme.colors.background.main,
+                    }}
+                  >
+                    <Logo width={220} />
+                  </View>
+                </>
+              ),
             }}
           />
         </>

@@ -11,7 +11,7 @@ import React from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { RefreshControl } from "react-native-gesture-handler";
 import { Modalize } from "react-native-modalize";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 type Props = NativeStackScreenProps<IRootStackParamList, "MY_PUBLICATIONS">;
 
@@ -21,6 +21,7 @@ export default function MyPublications({ navigation }: Props) {
   const { state } = React.useContext(AuthContext);
   const { findPublicationsByUser, deletePublication } = usePublications();
   const [currentPubli, setCurrentPubli] = React.useState<IPublications>();
+  const queryClient = useQueryClient();
 
   const publicationsByUserQuery = useQuery<
     IPublications[],
@@ -38,6 +39,7 @@ export default function MyPublications({ navigation }: Props) {
     deletePublication,
     {
       onSuccess: () => {
+        queryClient.invalidateQueries("publications");
         publicationsByUserQuery.refetch();
       },
     }
@@ -71,6 +73,11 @@ export default function MyPublications({ navigation }: Props) {
         open={deletePublicationMutation.isError}
         message={deletePublicationMutation.error?.message}
         severity="error"
+      />
+      <Alert
+        open={deletePublicationMutation.isSuccess}
+        message="Publicação excluída"
+        severity="success"
       />
       <FlatList
         data={publicationsByUserQuery.data}

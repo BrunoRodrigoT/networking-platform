@@ -1,65 +1,70 @@
-import { Alert, CardBase, Container, GoBack } from "@components";
+import React from "react";
+import { CardBase, Container, FormTextField, GoBack } from "@components";
 import { useTheme } from "@contexts";
-import { Ionicons } from "@expo/vector-icons";
-import { ICreateFavorite, IFavorite } from "@models/Favorite";
+import { IUser } from "@models/Auth";
 import { IError } from "@models/Request";
 import { IRootStackParamList } from "@models/Screens";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useFavorite } from "@services";
+import { UseUser } from "@services";
+import UseDebounce from "@utils/useDebounce";
+import { useForm } from "react-hook-form";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { useQuery } from "react-query";
+import Logo from "@assets/icons/svgs/icons/logo.svg";
+import { Ionicons } from "@expo/vector-icons";
 import { format, parseISO } from "date-fns";
-import React from "react";
-import {
-  FlatList,
-  RefreshControl,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useMutation, useQuery } from "react-query";
+import { RefreshControl } from "react-native-gesture-handler";
 
-type Props = NativeStackScreenProps<IRootStackParamList, "FAVORITES">;
+type Props = NativeStackScreenProps<IRootStackParamList, "SEARCH">;
 
-export default function Favorites({ navigation }: Props) {
+export default function Search({ navigation }: Props) {
   const theme = useTheme();
-  const { findFavorites, removeFavorite } = useFavorite();
+  const [params, setParams] = React.useState<string>("");
+  const { findUsers } = UseUser();
 
-  const favoritesQuery = useQuery<IFavorite[], IError, IFavorite[]>(
-    ["favorites"],
-    findFavorites,
+  const usersQuery = useQuery<IUser[], IError, IUser[]>(
+    ["users", params],
+    () => findUsers(params),
     {
       retry: false,
-    }
-  );
-  const unfavoriteMutation = useMutation<IError, IError, string>(
-    removeFavorite,
-    {
-      onSuccess: () => {
-        favoritesQuery.refetch();
-      },
+      enabled: !!params,
     }
   );
 
+  const { control, watch, handleSubmit } = useForm({
+    defaultValues: { params: "" },
+  });
+
+  const paramsDebounced = UseDebounce(watch("params"));
+
+  React.useEffect(() => {
+    (() => {
+      setParams(paramsDebounced);
+    })();
+  }, [paramsDebounced]);
+
+  const onSubmit = handleSubmit(() => {
+    usersQuery.refetch();
+  });
+
   return (
-    <Container
-      styles={{
-        paddingTop: theme.shape.padding,
-      }}
-    >
-      <GoBack title="Meus Favoritos" />
-      <Alert
-        open={unfavoriteMutation.isError}
-        message={unfavoriteMutation.error?.message}
-        severity="error"
-      />
+    <Container styles={{ padding: theme.shape.padding }}>
       <FlatList
-        data={favoritesQuery.data}
-        style={{ flex: 1, paddingHorizontal: theme.shape.padding }}
+        data={usersQuery.data}
+        ListHeaderComponent={
+          <FormTextField
+            control={control}
+            name="params"
+            placeholder="Pesquisar"
+            customStyles={{ containerStyles: { marginBottom: 10 } }}
+          />
+        }
         renderItem={({ item, index }) => (
           <CardBase
             key={index}
             styles={{
               padding: theme.shape.padding,
-              marginBottom: 10,
+              marginVertical: 5,
               gap: 7,
             }}
           >
@@ -81,7 +86,7 @@ export default function Favorites({ navigation }: Props) {
                 <View style={{}}>
                   <TouchableOpacity
                     onPress={() =>
-                      navigation.navigate("PROFILE", { id: item.user.id })
+                      navigation.navigate("PROFILE", { id: item.id })
                     }
                   >
                     <Text
@@ -91,15 +96,15 @@ export default function Favorites({ navigation }: Props) {
                         flexWrap: "wrap",
                       }}
                     >
-                      {item.user.username}
+                      {item.username}
                       {" - "}
                       <Text style={{ color: theme.colors.secondary.main }}>
-                        {item.course.name}
+                        {item.course?.name}
                       </Text>
                     </Text>
                   </TouchableOpacity>
-                  <Text>
-                    {format(parseISO(item.createdAt), "dd/MM/yyyy HH:mm")}
+                  <Text style={{ color: theme.colors.text.dark }}>
+                    {item.email}
                   </Text>
                 </View>
               </View>
@@ -111,23 +116,7 @@ export default function Favorites({ navigation }: Props) {
                 />
               </TouchableOpacity>
             </View>
-            <Text
-              style={{
-                fontSize: theme.typography.size.regular,
-                color: theme.colors.secondary.main,
-                fontFamily: theme.typography.fonts.primary.normal,
-              }}
-            >
-              {item.publication.title + ":"}
-            </Text>
-            <Text
-              style={{
-                fontSize: theme.typography.size.body,
-                fontFamily: theme.typography.fonts.primary.normal,
-              }}
-            >
-              {item.publication.description}
-            </Text>
+
             <View
               style={{
                 flexDirection: "row",
@@ -143,7 +132,7 @@ export default function Favorites({ navigation }: Props) {
               >
                 TAGS :{" "}
               </Text>
-              {item.publication.tags.map((e) => {
+              {item.specialties.map((e) => {
                 return (
                   <Text
                     style={{
@@ -157,25 +146,8 @@ export default function Favorites({ navigation }: Props) {
                 );
               })}
             </View>
-
-            <TouchableOpacity
-              onPress={() => unfavoriteMutation.mutate(item.id)}
-              style={{
-                position: "absolute",
-                bottom: 15,
-                right: 15,
-              }}
-            >
-              <Ionicons
-                name="heart"
-                size={30}
-                color={theme.colors.error.dark}
-                style={{ alignSelf: "center" }}
-              />
-            </TouchableOpacity>
           </CardBase>
         )}
-        showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <Text
             style={{
@@ -186,14 +158,15 @@ export default function Favorites({ navigation }: Props) {
               color: theme.colors.text?.light,
             }}
           >
-            Nenhuma publicação encontrada
+            Pesquise por novos usuários...
           </Text>
         }
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
-            refreshing={favoritesQuery.isRefetching}
+            refreshing={usersQuery.isRefetching}
             onRefresh={() => {
-              favoritesQuery.refetch();
+              usersQuery.refetch();
             }}
           />
         }

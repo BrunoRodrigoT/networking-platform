@@ -45,15 +45,17 @@ export default function Publication({ navigation }: Props) {
     course_id: Yup.string(),
   });
 
-  const { control, handleSubmit } = useForm<IPublicationForm>({
-    defaultValues: {
-      user_id: state.data.user.id,
-      title: "",
-      description: "",
-      tags: "",
-      company_id: state.data.user.company_id,
-      course_id: "",
-    },
+  const defaultValues = {
+    user_id: state.data.user.id,
+    title: "",
+    description: "",
+    tags: "",
+    company_id: state.data.user.company_id,
+    course_id: "",
+  };
+
+  const { control, handleSubmit, reset } = useForm<IPublicationForm>({
+    defaultValues: defaultValues,
     resolver: yupResolver(validations) as never,
   });
 
@@ -65,6 +67,7 @@ export default function Publication({ navigation }: Props) {
       {
         onSuccess: () => {
           queryClient.invalidateQueries("publications");
+          reset(defaultValues);
           setTimeout(() => {
             navigation.goBack();
           }, 2000);
@@ -79,6 +82,11 @@ export default function Publication({ navigation }: Props) {
         style={{ flex: 1, padding: theme.shape.padding }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
+        <Alert
+          open={createPublicationMutation.isSuccess}
+          message="Publicação postada com sucesso"
+          severity="success"
+        />
         <Alert
           open={createPublicationMutation.isError}
           message={createPublicationMutation.error?.message}
@@ -111,7 +119,11 @@ export default function Publication({ navigation }: Props) {
             numberLines={2}
           />
         </ScrollView>
-        <Button variant="primary" onPress={onSubmit}>
+        <Button
+          variant="primary"
+          onPress={onSubmit}
+          loading={createPublicationMutation.isLoading}
+        >
           Publicar
         </Button>
       </KeyboardAvoidingView>

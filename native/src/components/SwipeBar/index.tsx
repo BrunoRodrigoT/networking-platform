@@ -25,6 +25,10 @@ export default function SwipeBar() {
       route: "MENU",
     },
     {
+      name: "Pesquisar",
+      route: "SEARCH",
+    },
+    {
       name: "Perfil",
       route: "PROFILE",
     },
@@ -36,10 +40,10 @@ export default function SwipeBar() {
       name: "Favoritos",
       route: "FAVORITES",
     },
-    {
-      name: "Ajuda",
-      route: "PROFILE",
-    },
+    // {
+    //   name: "Ajuda",
+    //   route: "PROFILE",
+    // },
   ];
 
   return (

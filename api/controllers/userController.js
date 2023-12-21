@@ -5,6 +5,7 @@ const { User, Company, Course } = require("../models");
 const validator = require("validator");
 const moment = require("moment");
 const Messages = require("../utils/messages");
+const { Op } = require("sequelize");
 
 const router = express.Router();
 
@@ -36,6 +37,41 @@ router.get("/:id", async (req, res) => {
         company: company,
         course: course,
       });
+    } catch (error) {
+      res.status(500).json(Messages.internalServerError);
+    }
+  });
+});
+
+router.get("/", async (req, res) => {
+  const token = req.header("Authorization");
+  if (!token) {
+    return res.status(401).json(Messages.unalthorized);
+  }
+
+  jwt.verify(token, "your-secret-key", async (err) => {
+    try {
+      if (err) {
+        return res.status(401).json(Messages.unalthorized);
+      }
+
+      const { query } = req.query;
+
+      if (!query) {
+        return res.status(400).json(Messages.badRequest);
+      }
+      const users = await User.findAll({
+        where: {
+          [Op.or]: [
+            { username: { [Op.iLike]: `%${query}%` } },
+            { email: { [Op.iLike]: `%${query}%` } },
+            { specialties: { [Op.contains]: [query] } },
+          ],
+        },
+        include: [Company, Course],
+      });
+
+      res.status(200).json(users);
     } catch (error) {
       res.status(500).json(Messages.internalServerError);
     }

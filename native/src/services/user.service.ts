@@ -7,5 +7,8 @@ export default function UseUser() {
         return Instance.get(DEFAULT_PATH + "/" + id).then((res) => res.data);
     };
 
-    return { findUserById };
+    const findUsers = async (params: string): Promise<IUser[]> => {
+        return Instance.get(DEFAULT_PATH, { params: { query: params } }).then((res) => res.data);
+    }
+    return { findUserById, findUsers };
 }

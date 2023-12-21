@@ -86,14 +86,13 @@ router.get("/", async (req, res) => {
 
       const response = await Promise.all(
         favorites.map(async (e) => {
-          const user = await User.findOne({
-            where: { id: e.dataValues.user_id },
-          });
-
           const publication = await Publication.findOne({
             where: { id: e.dataValues.publication_id },
           });
 
+          const user = await User.findOne({
+            where: { id: publication.dataValues.user_id },
+          });
           const company = await Company.findOne({
             where: { id: user.dataValues.company_id },
           });
